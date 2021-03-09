@@ -1,6 +1,6 @@
 #### Extra functions
 
-ModifiedIndexCoefficient=function(wp,edges.list)
+ModifiedIndexCoefficient=function(wp,edges.list,npol,ndisp)
 {
   Nplants= length(wp)
   O=numeric(Nplants)  
@@ -16,19 +16,21 @@ ModifiedIndexCoefficient=function(wp,edges.list)
       P[j]=Nperlayer[1]*Nperlayer[2]
     }
   }
-  Coef=sum(P*O)
+  Coef=sum(P*O)/(Nplants*npol*ndisp)
   return(Coef)
 }
 
 
 
-ToFreq=function(IntNetwork)
+ToProp=function(IntNetwork)
 {
 NN=sum(IntNetwork)
 out=IntNetwork/NN
 return(out)
 }  
-    
+# networkwD=IntNetPol
+# networkP=simudisp17[,,i]
+
 CreateFiles=function(networkD,networkP)
 {
   require(tidyverse)
@@ -37,7 +39,7 @@ CreateFiles=function(networkD,networkP)
   Dispersores=row.names(networkD)
   
   #mismo orden para la plantas
-  DispPlanta=networkD %>% select(Plantas)
+  networkD=networkD %>% select(Plantas)
   
   n.plantas=length(Plantas)
   n.polinizadores=length(Polinizadores)

@@ -29,8 +29,8 @@ I_Layer_pol18 <- read.csv("~/multicapas_tiño/implementacion/IntegerData/I_Layer
 ########### Calculate Real values
 
 
-Ndisp=I_Layer_disp18
-Npol=I_Layer_pol18
+Ndisp=NI_Layer_disp17
+Npol=NI_Layer_pol17
 
 
 Ndisp=Ndisp[apply(Ndisp[,-1], 1, function(x) !all(x==0)),]
@@ -62,6 +62,19 @@ LReal=Realsalida$L
 
 MReal
 
+
+##### MIC
+
+plantesName= c("Ari_chi", "Aza_mic", "Ber_dar", "Col_hys", "Gal_hyp", "Lum_api", "May_boa",
+               "May_chu", "Pru_avi", "Rib_mag", "Rub_ida", "Sch_pat", "Tri_cor") # chequear si de esto falta algo
+
+wp=which(plantesName %in% Nodes$name_node)
+Edges2=Edges %>% select(node_from,layer_from,node_to,layer_to,weight)
+chau=which(Edges2$layer_from!=Edges2$layer_to)
+Edges.new=Edges2[-chau,]
+
+Real_MIC=ModifiedIndexCoefficient(wp,edges.list=Edges.new)
+
 #####################################################################################
 ############################# Intra-layer null model ################################
 #####################################################################################
@@ -82,8 +95,7 @@ L=numeric(nsim)
 M=numeric(nsim)
 NN=1
 
-#for (i in 1:nsim)
-
+MIC=numeric(nsim)
 
 for (i in 1:(nsim*2))
 {
@@ -142,12 +154,19 @@ for (i in 1:(nsim*2))
     {
       L[NN]=salida$L
       M[NN]=salida$m
+      ### MDCI
+      wp=which(plantesName %in% Nodes$name_node)
+      Edges2=Edges %>% select(node_from,layer_from,node_to,layer_to,weight)
+      chau=which(Edges2$layer_from!=Edges2$layer_to)
+      Edges.new=Edges2[-chau,]
+      
+      MIC[NN]=ModifiedIndexCoefficient(wp,edges.list=Edges.new)
+      
       NN=NN+1
+      
+      
     }
     
-    
-    
-    ### MDCI
   }
   
   else
@@ -158,12 +177,14 @@ for (i in 1:(nsim*2))
 
  
 
-ResultsSimus=data.frame("M"=as.integer(M),"L"=L)
-ResultsSimus$M
+ResultsSimus=data.frame("M"=as.integer(M),"L"=L,"MIC"=MIC)
+ResultsSimus$MIC
 
-#write.csv(ResultsSimus,file='HT_NI2018.csv')
+write.csv(ResultsSimus,file='HT_NI2017.csv')
 
 ggplot(ResultsSimus)+geom_bar(aes(x=M))+theme_bw() +geom_vline(xintercept =MReal,linetype = "dashed")
+
+ggplot(ResultsSimus)+geom_histogram(aes(x=MIC))+theme_bw()+geom_vline(xintercept =Real_MIC,linetype = "dashed")
 
 
 

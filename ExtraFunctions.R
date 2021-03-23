@@ -1,6 +1,6 @@
 #### Extra functions
 
-ModifiedIndexCoefficient=function(wp,edges.list,npol,ndisp)
+ModifiedIndexCoefficient=function(wp,edges.list)
 {
   Nplants= length(wp)
   O=numeric(Nplants)  
@@ -16,7 +16,7 @@ ModifiedIndexCoefficient=function(wp,edges.list,npol,ndisp)
       P[j]=Nperlayer[1]*Nperlayer[2]
     }
   }
-  Coef=sum(P*O)/(Nplants*npol*ndisp)
+  Coef=sum(P*O)#/(Nplants*npol*ndisp)
   return(Coef)
 }
 

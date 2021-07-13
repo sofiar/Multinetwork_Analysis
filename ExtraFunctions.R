@@ -9,7 +9,7 @@ ModifiedIndexCoefficient=function(wp,edges.list)
   {
     nodeP=wp[j]
     O[j]=as.numeric(edges.list %>% filter(node_from==nodeP) %>% summarise(o=sum(weight)))
-    Nperlayer=edges.list %>% filter(node_from==nodeP) %>% group_by(layer_to) %>% summarise(N=n())
+    Nperlayer=edges.list %>% filter(node_from==nodeP) %>% group_by(layer_to) %>% dplyr::summarise(N=n())
     Nperlayer=Nperlayer$N
     if (length(Nperlayer)>1)
     {

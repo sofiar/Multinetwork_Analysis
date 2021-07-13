@@ -5,13 +5,14 @@ library(dplyr)
 library(vegan)
 library(infomapecology)
 library(bipartite)
-source('/home/sofi/multicapas_tiño/implementacion/ExtraFunctions.R')
+library(ggplot2)
+source('/home/sofi/multicapas_tiño/ExtraFunctions.R')
 
 
 # cargamos los datos
 #2017
-NI_Layer_disp17 <- read.csv("~/multicapas_tiño/implementacion/IntegerData/NI_Layer_disp17.csv", sep=";",row.names=1)
-NI_Layer_pol17 <- read.csv("~/multicapas_tiño/implementacion/IntegerData/NI_Layer_pol17_carn.csv", sep=";",row.names=1)
+NI_Layer_disp17 <- read.csv("~/multicapas_tiño/NI_Layer_disp17.csv", sep=";",row.names=1)
+NI_Layer_pol17 <- read.csv("~/multicapas_tiño/NI_Layer_pol17_carn.csv", sep=";",row.names=1)
 
 I_Layer_disp17 <- read.csv("~/multicapas_tiño/implementacion/IntegerData/I_Layer_disp17.csv", sep=";",row.names=1)
 I_Layer_pol17 <- read.csv("~/multicapas_tiño/implementacion/IntegerData/I_Layer_pol17carn.csv", sep=";",row.names=1)
@@ -26,17 +27,24 @@ I_Layer_disp18 <- read.csv("~/multicapas_tiño/implementacion/IntegerData/I_Laye
 I_Layer_pol18 <- read.csv("~/multicapas_tiño/implementacion/IntegerData/I_Layer_pol18carn.csv", sep=";",row.names=1)
 
 
+I2_disp18 <- read.csv("~/multicapas_tiño/I2_disp18.csv",row.names = 1)
+I2_pol18 <- read.csv("~/multicapas_tiño/I2_pol18.csv",row.names = 1)
+
+
 ########### Calculate Real values
 
+Ndisp=I2_disp18
+Npol=I2_pol18
 
-Ndisp=NI_Layer_disp17
-Npol=NI_Layer_pol17
+# Ndisp=NI_Layer_disp17
+# Npol=NI_Layer_pol17
 
 
-Ndisp=Ndisp[apply(Ndisp[,-1], 1, function(x) !all(x==0)),]
-Npol=Npol[apply(Npol[,-1], 1, function(x) !all(x==0)),]
-NpolE=empty(Npol)
-NdispE=empty(Ndisp)
+
+Ndisp=Ndisp[apply(Ndisp, 1, function(x) !all(x==0)),]
+Npol=Npol[apply(Npol, 1, function(x) !all(x==0)),]
+NpolE=bipartite::empty(Npol)
+NdispE=bipartite::empty(Ndisp)
 
 # toprop
 RealfNetPol=ToProp(Npol)
@@ -105,10 +113,17 @@ for (i in 1:(nsim*2))
     IntNetDisp=simudisp[,,i]
     
     IntNetPol=as.data.frame(IntNetPol)
-    IntNetPol=IntNetPol[apply(IntNetPol[,-1], 1, function(x) !all(x==0)),]  
-    IntNetDisp=as.data.frame(IntNetDisp)
-    IntNetDisp=IntNetDisp[apply(IntNetDisp[,-1], 1, function(x) !all(x==0)),]  
+    IntNetPol=filter_all(IntNetPol, any_vars(. != 0))
     
+    if(is.integer(IntNetDisp)) # si tengo un solo disperson. arreglo tipo de objeto
+    {
+      IntNetDisp=as.matrix(t(IntNetDisp))
+      rownames(IntNetDisp)=rownames(NdispE)
+    }
+    
+    IntNetDisp=as.data.frame(IntNetDisp)
+    IntNetDisp=filter_all(IntNetDisp, any_vars(. != 0))
+   
     
     # agregamoa las plantas que no estan en alguna de las dos capas (yo soy capa)
     plantas=unique(c(colnames(IntNetPol),colnames(IntNetDisp)))
@@ -180,8 +195,8 @@ for (i in 1:(nsim*2))
 ResultsSimus=data.frame("M"=as.integer(M),"L"=L,"MIC"=MIC)
 ResultsSimus$MIC
 
-write.csv(ResultsSimus,file='HT_NI2017.csv')
 
+#write.csv(ResultsSimus,file='HT_NI2017.csv')
 ggplot(ResultsSimus)+geom_bar(aes(x=M))+theme_bw() +geom_vline(xintercept =MReal,linetype = "dashed")
 
 ggplot(ResultsSimus)+geom_histogram(aes(x=MIC))+theme_bw()+geom_vline(xintercept =Real_MIC,linetype = "dashed")
@@ -189,4 +204,4 @@ ggplot(ResultsSimus)+geom_histogram(aes(x=MIC))+theme_bw()+geom_vline(xintercept
 
 
 
-
+uninstall.R("4.1.0") 

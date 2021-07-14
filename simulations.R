@@ -204,4 +204,3 @@ ggplot(ResultsSimus)+geom_histogram(aes(x=MIC))+theme_bw()+geom_vline(xintercept
 
 
 
-uninstall.R("4.1.0") 

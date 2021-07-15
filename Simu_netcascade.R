@@ -52,7 +52,7 @@ for (i in 1:nsims)
 {
 NC=netcascade(as.matrix(IM),Ranim,Rplants,deadPlants=NULL, deadAnimals=NULL, targetGuild='plant',target=bye.plants[i],return.matrix=F)
 PL.degree[i]=max(NC$cascade_data$degree)
-PL.dead.plants[i]=NC$cascade_data$n_extinctions[1]
+PL.dead.plants[i]=length(NC$plant_species_data$lost_plant)
 if (is.data.frame(NC$animal_species_data)) # si se murio alguno
 {PL.dead.pols[i]=sum(NC$animal_species_data$lost_animal %in% pol_indx)
 PL.dead.disp[i]=sum(NC$animal_species_data$lost_animal %in% disp_indx)}
@@ -77,7 +77,7 @@ for (i in 1:nsims)
   
   if (is.data.frame(NC$plant_species_data)) # si se murio alguna planta
   {
-  DP.dead.plants[i]=NC$cascade_data$n_extinctions[2]
+  DP.dead.plants[i]=length(NC$plant_species_data$lost_plant)
   }
 }
 
@@ -100,7 +100,7 @@ for (i in 1:nsims)
   
   if (is.data.frame(NC$plant_species_data)) # si se murio alguna planta
   {
-    PO.dead.plants[i]=NC$cascade_data$n_extinctions[2]
+    PO.dead.plants[i]=length(NC$plant_species_data$lost_plant)
   }
 }
 

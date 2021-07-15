@@ -115,7 +115,7 @@ dead.pols=c(PL.dead.pols,DP.dead.pols,PO.dead.pols)
 degrees=c(PL.degree,DP.degree,PO.degree)
 initial.random=c(rep('Plant',nsims),rep('Disp',nsims),rep('Pol',nsims))
 
-Results=data.frame(initial.random,dead.plants,dead.disp,dead.pols,degree)
+Results=data.frame(initial.random,dead.plants,dead.disp,dead.pols,degrees)
 
 
 D.plot=ggplot(Results)+geom_bar(aes(x=degree))+facet_grid(~initial.random)+theme_bw()

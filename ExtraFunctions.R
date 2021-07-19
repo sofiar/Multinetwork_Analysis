@@ -149,3 +149,13 @@ CreateFiles=function(networkD,networkP)
   return(list(Edges.info=AllExtend,Layers.info=LayerInfo,Nodes.info=NodesInfo))
 
 }
+
+
+
+auc=function(rem,pre){
+  y <- pre
+  x <- rem
+  ext.curve <- splinefun(x, y)
+  ext.area <- integrate(ext.curve, 0, 1)
+  return(as.numeric(ext.area[[1]]))
+}

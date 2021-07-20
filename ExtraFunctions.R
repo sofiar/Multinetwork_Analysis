@@ -28,11 +28,11 @@ NN=sum(IntNetwork)
 out=IntNetwork/NN
 return(out)
 }  
-# networkwD=IntNetPol
-# networkP=simudisp17[,,i]
+
+
 
 CreateFiles=function(networkD,networkP)
-{
+{ 
   require(tidyverse)
   Plantas=names(networkP)
   Polinizadores=row.names(networkP)
@@ -46,8 +46,8 @@ CreateFiles=function(networkD,networkP)
   n.dispersores=length(Dispersores)
   n.nodos=n.plantas+n.polinizadores+n.dispersores
   
-  # PolPLanta
-
+  # Edges lists PolPLanta
+  
   nodeFrom=c()
   nodeTo=c()
   weight=c()
@@ -55,10 +55,10 @@ CreateFiles=function(networkD,networkP)
   
   for (i in 1:n.plantas)
   {
-    edges.tpm=networkP[,i]>0
+    edges.tpm=networkP[,i]>0 
     quienes.tmp=which(edges.tpm)
     
-    for (j in quienes.tmp)
+    for (j in quienes.tmp) 
     {
       nodeFrom=c(nodeFrom,i)
       nodeTo=c(nodeTo,j)
@@ -68,11 +68,8 @@ CreateFiles=function(networkD,networkP)
   }
   
   nodeTo=nodeTo+n.plantas
-  
   Edges.List1=as.data.frame(cbind(nodeFrom,nodeTo,weight))
-  
-  # DispPlanta
-  
+
   nodeFrom=c()
   nodeTo=c()
   weight=c()
@@ -96,9 +93,7 @@ CreateFiles=function(networkD,networkP)
   
   Edges.List2=as.data.frame(cbind(nodeFrom,nodeTo,weight))
   
-  
-  ### Extended edges list
-  
+
   Nlayer1=rep(1,nrow(Edges.List1))
   Nlayer2=rep(2,nrow(Edges.List2))
   
@@ -107,31 +102,41 @@ CreateFiles=function(networkD,networkP)
                      'layer_to'=as.integer(Nlayer1),
                      'node_to'=as.integer(Edges.List1[,2]),
                      'weight'=Edges.List1[,3])
-#  names(Extend1)=c("layer_from","node_from", "layer_to", "node_to", "weight")
-  
-  
-  #Extend2=data.frame(cbind(Nlayer2,Edges.List2[,1],Nlayer2,Edges.List2[,2],Edges.List2[,3]))
+ 
   Extend2=data.frame('layer_from'=as.integer(Nlayer2),
                      "node_from"=as.integer(Edges.List2[,1]),
                      'layer_to'=as.integer(Nlayer2),
                      'node_to'=as.integer(Edges.List2[,2]),
                      'weight'=Edges.List2[,3])
   
-  
-  # names(Extend2)=c("layer_from","node_from", "layer_to", "node_to", "weight")
-  # Conexion intercapa
-  
+
   Qplan1=which(vapply(networkD,sum,1)>0)
   Qplan2=which(vapply(networkP,sum,1)>0)
   
-  quienes.inter=Qplan2[Qplan2%in%Qplan1]
+  quienes.inter=Qplan2[Qplan2%in%Qplan1] 
+  W = vector(mode="numeric", length((quienes.inter))) 
+  
+  Edges.List3 = rbind(Extend1, Extend2) 
+  
+  for (j in seq_along(quienes.inter)){
+    nodeP=quienes.inter[j]
+    W[j]=as.numeric(Edges.List3 %>% filter(node_from ==nodeP)  %>% summarise(w = sum(weight)))
+    
+  } 
+  
+ 
+  tot<-sum(W)
+ 
   cuan.inter=length(quienes.inter)
+  for (i in seq_along(W)){
+    cuan.inter[i] = W[i]/tot 
+  }
+ 
   
-  extendInter=data.frame("layer_from"=as.integer(rep(1,cuan.inter)),'node_from'=as.integer(quienes.inter),
-                         'layer_to'=as.integer(rep(2,cuan.inter)),'node_to'=as.integer(quienes.inter),
-                         "weight"=rep(1,cuan.inter))
-  
-  
+  extendInter=data.frame("layer_from"=as.integer(rep(1,length(cuan.inter))),'node_from'=as.integer(quienes.inter),
+                         'layer_to'=as.integer(rep(2,length(cuan.inter))),'node_to'=as.integer(quienes.inter),
+                         "weight"=as.numeric(cuan.inter))
+
   AllExtend=rbind(Extend1,Extend2,extendInter)
   
   ### Layers info 
@@ -142,13 +147,18 @@ CreateFiles=function(networkD,networkP)
   
   ### Nodes info 
   
-  nodeID=seq(1,n.nodos) #  Primeros plantas , luego polinizadores , luego dispersores 
+  nodeID=seq(1,n.nodos) #
   nodeLabel=c(Plantas,Polinizadores,Dispersores)
   NodesInfo=data.frame('node_id'=nodeID,'name_node'=nodeLabel)
   
   return(list(Edges.info=AllExtend,Layers.info=LayerInfo,Nodes.info=NodesInfo))
-
+  
+  
+  
+  
 }
+
+
 
 
 

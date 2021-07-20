@@ -7,43 +7,54 @@ library(gridExtra)
 source ('netcascade (April 2014).R')
 source('ExtraFunctions.R')
 
+# set treatment
+Tre='I'
+
+
 # Load Networks
 NI_pol <- read.csv("~/multicapas_tiño/NI_pol.csv", sep=",",row.names=1)
 NI_disp <- read.csv("~/multicapas_tiño/NI_disp.csv", sep=",",row.names=1)
 I_disp <- read.csv("~/multicapas_tiño/I_disp.csv", sep=",",row.names=1)
 I_pol <- read.csv("~/multicapas_tiño/I_pol.csv", sep=";",row.names=1)
 
-disp.net=I_disp
-pol.net=I_pol
+if (Tre=="NI")
+{
+  disp.net=NI_disp
+  pol.net=NI_pol
+  
+  # Load R values NI
+  Rdisp <- read.csv("~/multicapas_tiño/RdispNI.csv")
+  Rdisp=Rdisp$x
+  Rpol <- read.csv("~/multicapas_tiño/RpolNI.csv")
+  Rpol=Rpol$x
+  Rplants <- read.csv("~/multicapas_tiño/RplantsNI.csv")
+  Rplants=Rplants$x
+  Ranim=c(Rdisp,Rpol)
+  
+}
+
+if (Tre=="I")
+{
+  disp.net=I_disp
+  pol.net=I_pol
+  
+  # Load R values I
+  Rdisp <- read.csv("~/multicapas_tiño/RdispI.csv")
+  Rdisp=Rdisp$x
+  Rpol <- read.csv("~/multicapas_tiño/RpolI.csv")
+  Rpol=Rpol$x
+  Rplants <- read.csv("~/multicapas_tiño/RplantsI.csv")
+  Rplants=Rplants$x
+  Ranim=c(Rdisp,Rpol)
+  
+}
+
+
 
 ndisp=dim(disp.net)[1]
 npol=dim(pol.net)[1]
 nplants=dim(disp.net)[2]
 ntot=nplants+npol+ndisp
-
-
-# Load R values I
-RdispI <- read.csv("~/multicapas_tiño/RdispI.csv")
-RdispI=RdispI$x
-RpolI <- read.csv("~/multicapas_tiño/RpolI.csv")
-RpolI=RpolI$x
-RplantsI <- read.csv("~/multicapas_tiño/RplantsI.csv")
-RplantsI=RplantsI$x
-
-# Load R values NI
-RdispNI <- read.csv("~/multicapas_tiño/RdispNI.csv")
-RdispNI=RdispNI$x
-RpolNI <- read.csv("~/multicapas_tiño/RpolNI.csv")
-RpolNI=RpolNI$x
-RplantsNI <- read.csv("~/multicapas_tiño/RplantsNI.csv")
-RplantsNI=RplantsNI$x
-
-# set R
-Rplants=RplantsI
-Rdisp=RdispI
-Rpol=RpolI
-Ranim=c(Rdisp,Rpol)
-
 
 # create IM
 disp_indx=1:ndisp
@@ -174,14 +185,14 @@ Results.ce=data.frame(reps,Scenario,sp.rm,sp.present)
 ### Figures ggplot
 
 aucplot=ggplot(Results.AUC)+geom_boxplot(aes(y=Auc,x=Scenario,color=Scenario))+theme_bw()
-#ggsave('auc_I.pdf',aucplot)
+ggsave(paste('auc_',as.character(Tre),'.pdf',sep=''),aucplot)
 
 
 
 plot.ce=ggplot(Results.ce)+geom_point(aes(x=sp.rm,y=sp.present,color=as.factor(reps)))+
   geom_line(aes(x=sp.rm,y=sp.present,color=as.factor(reps)))+
   facet_grid(~Scenario)+theme_bw()+theme(legend.position =  'none')
+ggsave(paste('ce_',as.character(Tre),'.pdf',sep=''),plot.ce)
 
-#ggsave('ce_I.pdf',plot.ce)
 
 

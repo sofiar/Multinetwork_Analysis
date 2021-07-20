@@ -8,33 +8,55 @@ source ('netcascade (April 2014).R')
 source('ExtraFunctions.R')
 
 # Load Networks
-NI_Layer_disp17 <- read.csv("~/multicapas_tiño/NI_Layer_disp17.csv", sep=";",row.names=1)
-NI_Layer_pol17 <- read.csv("~/multicapas_tiño/NI_Layer_pol17_carn.csv", sep=";",row.names=1)
+NI_pol <- read.csv("~/multicapas_tiño/NI_pol.csv", sep=",",row.names=1)
+NI_disp <- read.csv("~/multicapas_tiño/NI_disp.csv", sep=",",row.names=1)
+I_disp <- read.csv("~/multicapas_tiño/I_disp.csv", sep=",",row.names=1)
+I_pol <- read.csv("~/multicapas_tiño/I_pol.csv", sep=";",row.names=1)
 
-disp.net=NI_Layer_disp17
-pol.net=NI_Layer_pol17
+disp.net=I_disp
+pol.net=I_pol
 
 ndisp=dim(disp.net)[1]
 npol=dim(pol.net)[1]
 nplants=dim(disp.net)[2]
 ntot=nplants+npol+ndisp
 
+
+# Load R values I
+RdispI <- read.csv("~/multicapas_tiño/RdispI.csv")
+RdispI=RdispI$x
+RpolI <- read.csv("~/multicapas_tiño/RpolI.csv")
+RpolI=RpolI$x
+RplantsI <- read.csv("~/multicapas_tiño/RplantsI.csv")
+RplantsI=RplantsI$x
+
+# Load R values NI
+RdispNI <- read.csv("~/multicapas_tiño/RdispNI.csv")
+RdispNI=RdispNI$x
+RpolNI <- read.csv("~/multicapas_tiño/RpolNI.csv")
+RpolNI=RpolNI$x
+RplantsNI <- read.csv("~/multicapas_tiño/RplantsNI.csv")
+RplantsNI=RplantsNI$x
+
+# set R
+Rplants=RplantsI
+Rdisp=RdispI
+Rpol=RpolI
+Ranim=c(Rdisp,Rpol)
+
+
 # create IM
 disp_indx=1:ndisp
 pol_indx=(ndisp+1):(ndisp+npol)
 
-IM=rbind(NI_Layer_disp17,NI_Layer_pol17)
+IM=rbind(disp.net,pol.net)
 int.m=as.matrix(IM)
 
 # count number of interactions
 
 n.interactions=as.numeric(c(apply(IM, 1,sum),apply(IM, 2,sum)))
 
-# Set R values
-Rplants=runif(nplants) 
-Rpol=runif(npol)
-Rdisp=runif(ndisp)
-Ranim=c(Rdisp,Rpol)
+
 
 nsims=100
 
@@ -105,7 +127,7 @@ for (i in 1:nsims)
     
     
     
-  if(last.dead<=43)
+  if(last.dead<=length(Ranim))
   {tg='animal'}
   else
   {tg='plant'
@@ -148,14 +170,18 @@ Results.AUC=data.frame(reps=reps2,Scenario=Scenario2,Auc)
 
 Results.ce=data.frame(reps,Scenario,sp.rm,sp.present)
 
+
 ### Figures ggplot
 
-ggplot(Results.AUC)+geom_boxplot(aes(y=Auc,x=Scenario,color=Scenario))+theme_bw()
+aucplot=ggplot(Results.AUC)+geom_boxplot(aes(y=Auc,x=Scenario,color=Scenario))+theme_bw()
+#ggsave('auc_I.pdf',aucplot)
 
-ggplot(Results.ce)+geom_point(aes(x=sp.rm,y=sp.present,color=as.factor(reps)))+
+
+
+plot.ce=ggplot(Results.ce)+geom_point(aes(x=sp.rm,y=sp.present,color=as.factor(reps)))+
   geom_line(aes(x=sp.rm,y=sp.present,color=as.factor(reps)))+
-  facet_grid(~Scenario)+theme_bw()
+  facet_grid(~Scenario)+theme_bw()+theme(legend.position =  'none')
 
-
+#ggsave('ce_I.pdf',plot.ce)
 
 

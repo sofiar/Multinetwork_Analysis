@@ -7,7 +7,7 @@ library(gridExtra)
 source ('netcascade (April 2014).R')
 
 # set treatment
-Tre='I'
+Tre='NI'
 
 
 # Load Networks

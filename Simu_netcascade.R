@@ -1,18 +1,53 @@
 #### Extinction simulations with netcascade Viera y Almeida (2014) DOI 10.1111/ele.12394
 
-
 library(tidyverse)
 library(dplyr)
 library(infomapecology)
 library(gridExtra)
 source ('netcascade (April 2014).R')
 
-# Load Networks
-NI_Layer_disp17 <- read.csv("~/multicapas_tiño/NI_Layer_disp17.csv", sep=";",row.names=1)
-NI_Layer_pol17 <- read.csv("~/multicapas_tiño/NI_Layer_pol17_carn.csv", sep=";",row.names=1)
+# set treatment
+Tre='I'
 
-disp.net=NI_Layer_disp17
-pol.net=NI_Layer_pol17
+
+# Load Networks
+NI_pol <- read.csv("~/multicapas_tiño/NI_pol.csv", sep=",",row.names=1)
+NI_disp <- read.csv("~/multicapas_tiño/NI_disp.csv", sep=",",row.names=1)
+I_disp <- read.csv("~/multicapas_tiño/I_disp.csv", sep=",",row.names=1)
+I_pol <- read.csv("~/multicapas_tiño/I_pol.csv", sep=";",row.names=1)
+
+if (Tre=="NI")
+{
+  disp.net=NI_disp
+  pol.net=NI_pol
+  
+  # Load R values NI
+  Rdisp <- read.csv("~/multicapas_tiño/RdispNI.csv")
+  Rdisp=Rdisp$x
+  Rpol <- read.csv("~/multicapas_tiño/RpolNI.csv")
+  Rpol=Rpol$x
+  Rplants <- read.csv("~/multicapas_tiño/RplantsNI.csv")
+  Rplants=Rplants$x
+  Ranim=c(Rdisp,Rpol)
+  
+}
+
+if (Tre=="I")
+{
+  disp.net=I_disp
+  pol.net=I_pol
+  
+  # Load R values I
+  Rdisp <- read.csv("~/multicapas_tiño/RdispI.csv")
+  Rdisp=Rdisp$x
+  Rpol <- read.csv("~/multicapas_tiño/RpolI.csv")
+  Rpol=Rpol$x
+  Rplants <- read.csv("~/multicapas_tiño/RplantsI.csv")
+  Rplants=Rplants$x
+  Ranim=c(Rdisp,Rpol)
+  
+}
+
 
 ndisp=dim(disp.net)[1]
 npol=dim(pol.net)[1]
@@ -23,13 +58,8 @@ ntot=nplants+npol+ndisp
 disp_indx=1:ndisp
 pol_indx=(ndisp+1):(ndisp+npol)
 
-IM=rbind(NI_Layer_disp17,NI_Layer_pol17)
+IM=rbind(disp.net,pol.net)
 
-# Set R values
-Rplants=runif(nplants) 
-Rpol=runif(npol)
-Rdisp=runif(ndisp)
-Ranim=c(Rdisp,Rpol)
 
 nsims=100
 
@@ -116,12 +146,19 @@ degrees=c(PL.degree,DP.degree,PO.degree)
 initial.random=c(rep('Plant',nsims),rep('Disp',nsims),rep('Pol',nsims))
 
 Results=data.frame(initial.random,dead.plants,dead.disp,dead.pols,degrees)
-
-
-D.plot=ggplot(Results)+geom_bar(aes(x=degree))+facet_grid(~initial.random)+theme_bw()
+Results=Results %>% mutate(porcDeadPlants=dead.plants/nplants,porcDeadDisp=dead.disp/ndisp,porcDeadPols=dead.pols/npol)
 
 dead.disp.plot=ggplot(Results)+geom_bar(aes(x=dead.disp,fill=initial.random))+facet_grid(~initial.random)+theme_bw()
 dead.plant.plot=ggplot(Results)+geom_bar(aes(x=dead.plants,fill=initial.random))+facet_grid(~initial.random)+theme_bw()
 dead.pol.plot=ggplot(Results)+geom_bar(aes(x=dead.pols,fill=initial.random))+facet_grid(~initial.random)+theme_bw()
 
 grid.arrange(dead.disp.plot,dead.pol.plot,dead.plant.plot)
+
+# Porcentajes
+Pdead.disp.plot=ggplot(Results)+geom_bar(aes(x=porcDeadPols,fill=initial.random))+facet_grid(~initial.random)+theme_bw()
+Pdead.plant.plot=ggplot(Results)+geom_bar(aes(x=porcDeadPlants,fill=initial.random))+facet_grid(~initial.random)+theme_bw()
+Pdead.pol.plot=ggplot(Results)+geom_bar(aes(x=porcDeadDisp,fill=initial.random))+facet_grid(~initial.random)+theme_bw()
+
+PlotP=grid.arrange(Pdead.disp.plot,Pdead.pol.plot,Pdead.plant.plot)
+ggsave(paste('PorcentajesSim1_',as.character(Tre),'.pdf',sep=''),PlotP)
+

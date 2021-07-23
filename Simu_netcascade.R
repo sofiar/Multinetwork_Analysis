@@ -7,7 +7,7 @@ library(gridExtra)
 source ('netcascade (April 2014).R')
 
 # set treatment
-Tre='NI'
+Tre='I'
 
 
 # Load Networks
@@ -155,9 +155,9 @@ dead.pol.plot=ggplot(Results)+geom_bar(aes(x=dead.pols,fill=initial.random))+fac
 grid.arrange(dead.disp.plot,dead.pol.plot,dead.plant.plot)
 
 # Porcentajes
-Pdead.disp.plot=ggplot(Results)+geom_bar(aes(x=porcDeadPols,fill=initial.random))+facet_grid(~initial.random)+theme_bw()
+Pdead.disp.plot=ggplot(Results)+geom_bar(aes(x=porcDeadDisp,fill=initial.random))+facet_grid(~initial.random)+theme_bw()
 Pdead.plant.plot=ggplot(Results)+geom_bar(aes(x=porcDeadPlants,fill=initial.random))+facet_grid(~initial.random)+theme_bw()
-Pdead.pol.plot=ggplot(Results)+geom_bar(aes(x=porcDeadDisp,fill=initial.random))+facet_grid(~initial.random)+theme_bw()
+Pdead.pol.plot=ggplot(Results)+geom_bar(aes(x=porcDeadPols,fill=initial.random))+facet_grid(~initial.random)+theme_bw()
 
 PlotP=grid.arrange(Pdead.disp.plot,Pdead.pol.plot,Pdead.plant.plot)
 ggsave(paste('PorcentajesSim1_',as.character(Tre),'.pdf',sep=''),PlotP)
